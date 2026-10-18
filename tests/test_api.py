@@ -38,7 +38,7 @@ def test_score_a_takeover_style_payment(client, engine):
     risky = client.post("/api/score", json={"payer": payer, "payee": mule, "amount": 95000, "type": "P2P",
                                             "device": "DV-NEW-99"}).json()
     assert risky["risk"] > calm["risk"] and risky["decision"] != "ALLOW"
-    assert any("device" in r["reason"] for r in risky["reasons"])
+    assert risky["features"]["device_new_for_payer"] == 1 and risky["reasons"]   # new device seen by the store
     assert all(r["feature"] == "graph_watchlist" or r["impact"] > 0 for r in risky["reasons"])
     assert client.post("/api/score", json={"payer": "AC999999", "payee": mule, "amount": 10}).status_code == 404
     assert client.post("/api/score", json={"payer": "bad", "payee": mule, "amount": 10}).status_code == 422
