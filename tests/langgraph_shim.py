@@ -49,11 +49,14 @@ class StateGraph:
     def __init__(self, schema):
         self.nodes, self.edges, self.cond = {}, {}, {}
         self.reducers = {}
+        self.keys = set(typing.get_type_hints(schema))
         for name, hint in typing.get_type_hints(schema, include_extras=True).items():
             if typing.get_origin(hint) is typing.Annotated:
                 self.reducers[name] = hint.__metadata__[0]
 
     def add_node(self, name, fn):
+        if name in self.keys:       # same rule as the real LangGraph
+            raise ValueError(f"'{name}' is already being used as a state key")
         self.nodes[name] = fn
 
     def add_edge(self, a, b):

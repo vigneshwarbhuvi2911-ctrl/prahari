@@ -4,7 +4,7 @@ For each alert the agent gathers evidence with tools, decides the fraud typology
 which every sentence cites its evidence, and drafts a Suspicious Transaction Report (STR) and recommended
 actions for the analyst, who makes the final decision.
 
-    plan -> act (loop: one tool per step) -> assess -> write -> report
+    make_plan -> act (loop: one tool per step) -> assess -> write -> draft_report
 
 * Planning: the LLM chooses tools from an allow-list; offline, a fixed investigation playbook is used.
 * Assessment: deterministic typology rules over the evidence, backed by nearest past confirmed cases.
@@ -126,15 +126,16 @@ def build_agent(tools: dict, llm: LLMClient, max_steps: int = 8):
     def report(s: InvState) -> dict:
         return {"report": str_draft(s), "trace": [{"node": "report"}]}
 
+    # node names must differ from state keys ("plan", "report"), which LangGraph reserves
     g = StateGraph(InvState)
-    for n, f in [("plan", plan), ("act", act), ("assess", assess), ("write", write), ("report", report)]:
+    for n, f in [("make_plan", plan), ("act", act), ("assess", assess), ("write", write), ("draft_report", report)]:
         g.add_node(n, f)
-    g.add_edge(START, "plan")
-    g.add_edge("plan", "act")
+    g.add_edge(START, "make_plan")
+    g.add_edge("make_plan", "act")
     g.add_conditional_edges("act", lambda s: "act" if s.get("plan") else "assess", {"act": "act", "assess": "assess"})
     g.add_edge("assess", "write")
-    g.add_edge("write", "report")
-    g.add_edge("report", END)
+    g.add_edge("write", "draft_report")
+    g.add_edge("draft_report", END)
     return g.compile()
 
 
