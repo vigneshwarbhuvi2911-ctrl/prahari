@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prahari · UPI Fraud Intelligence</title>
+<style>
+:root{
+  --bg:#0b1016; --panel:#121a23; --panel2:#17212c; --line:#233140; --ink:#e6edf3; --muted:#8b9bab;
+  --accent:#34d1bf; --accent2:#5aa9ff; --hold:#ff5d5d; --step:#ffb547; --allow:#3fcf8e; --violet:#b48cff;
+  --mono: ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{display:flex;align-items:center;gap:14px;padding:12px 22px;border-bottom:1px solid var(--line);background:#0d141c;position:sticky;top:0;z-index:10;flex-wrap:wrap}
+.mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;color:#05202a;font-weight:800;font-size:17px}
+h1{margin:0;font-size:18px;letter-spacing:.01em}
+header small{display:block;color:var(--muted);font-size:12px}
+nav{display:flex;gap:4px;margin-left:12px;flex-wrap:wrap}
+nav button{background:none;border:0;color:var(--muted);font:inherit;padding:7px 12px;border-radius:8px;cursor:pointer}
+nav button.on{background:var(--panel2);color:var(--ink)}
+.sp{flex:1}
+.badge{font-size:11.5px;border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--muted)}
+main{max-width:1320px;margin:0 auto;padding:18px 22px}
+.page{display:none}.page.on{display:block}
+.grid{display:grid;gap:14px}
+.k6{grid-template-columns:repeat(6,1fr)}.k5{grid-template-columns:repeat(5,1fr)}.k4{grid-template-columns:repeat(4,1fr)}
+.two{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}.half{grid-template-columns:1fr 1fr}
+.case{grid-template-columns:360px minmax(0,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;min-width:0}
+.kpi b{display:block;font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+.kpi span{color:var(--muted);font-size:12px}
+.kpi small{color:var(--muted);font-size:11.5px}
+h3{margin:0 0 10px;font-size:11.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{color:var(--muted);font-weight:500;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono);font-size:12px}
+.pill{display:inline-block;font:700 10.5px/1 inherit;letter-spacing:.06em;padding:4px 8px;border-radius:6px}
+.HOLD{background:rgba(255,93,93,.15);color:var(--hold)}.STEP_UP{background:rgba(255,181,71,.15);color:var(--step)}
+.ALLOW{background:rgba(63,207,142,.12);color:var(--allow)}
+.risk{display:flex;align-items:center;gap:8px}.risk i{display:block;height:6px;border-radius:3px;background:var(--line);width:70px;overflow:hidden}
+.risk i::after{content:"";display:block;height:100%;width:var(--w);background:var(--c)}
+.truth{font-size:10px;color:var(--violet);border:1px solid rgba(180,140,255,.4);border-radius:4px;padding:0 4px;margin-left:4px}
+tr.new{animation:flash 1.2s ease-out}@keyframes flash{from{background:rgba(52,209,191,.18)}to{background:transparent}}
+.btn{background:var(--accent);color:#06221f;border:0;border-radius:9px;padding:8px 14px;font:600 13px inherit;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.red{background:var(--hold);color:#2a0606}.btn.amber{background:var(--step);color:#2a1a00}
+.list{max-height:70vh;overflow:auto}
+.item{padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer}
+.item:hover,.item.on{background:var(--panel2)}
+.item .top{display:flex;justify-content:space-between;gap:8px}
+.item small{color:var(--muted)}
+.reasons li{margin:3px 0}
+.narr p{margin:6px 0}
+.ref{font:600 10.5px var(--mono);color:var(--accent);background:rgba(52,209,191,.1);border-radius:4px;padding:0 5px;margin-left:3px;cursor:pointer}
+details.ev{border-bottom:1px solid var(--line);padding:6px 0}
+details.ev summary{cursor:pointer;color:var(--ink)}
+details.ev p{color:var(--muted);margin:4px 0 2px}
+.typ{font-size:15px;font-weight:700}
+.muted{color:var(--muted)}
+input,select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;width:100%}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.form{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+svg text{fill:var(--ink);font-size:11px}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.ok{color:var(--allow)}.warn{color:var(--step)}.bad{color:var(--hold)}
+.str dt{color:var(--muted);font-size:12px;margin-top:6px}.str dd{margin:0}
+@media (max-width:1000px){.k6,.k5,.k4{grid-template-columns:repeat(2,1fr)}.two,.half,.case{grid-template-columns:1fr}.form{grid-template-columns:1fr}main{padding:12px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="mark">प्र</div>
+  <div><h1>Prahari</h1><small>Real-time UPI fraud intelligence · synthetic data</small></div>
+  <nav>
+    <button data-p="live" class="on">Live</button><button data-p="alerts">Alerts &amp; cases</button>
+    <button data-p="rings">Mule rings</button><button data-p="model">Model &amp; monitoring</button>
+    <button data-p="try">Try a payment</button>
+  </nav>
+  <div class="sp"></div><span class="badge" id="prov">…</span>
+</header>
+<main>
+<section class="page on" id="p-live">
+  <div class="grid k6" id="livekpi"></div>
+  <div class="grid two" style="margin-top:14px">
+    <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h3>Payment stream (test period replayed)</h3>
+      <div><button class="btn ghost" id="pause">Pause</button></div></div>
+      <table><thead><tr><th>Time</th><th>Payer → Payee</th><th class="num">Amount</th><th>Type</th><th>Risk</th><th>Decision</th><th class="num">ms</th></tr></thead><tbody id="feed"></tbody></table>
+    </div>
+    <div class="grid" style="align-content:start">
+      <div class="card"><h3>Decisions so far</h3><div id="mix"></div></div>
+      <div class="card"><h3>Scoring latency (ms, last 80)</h3><svg id="spark" viewBox="0 0 300 80" width="100%" height="80"></svg><div class="muted" id="latnote" style="font-size:12px"></div></div>
+      <div class="card"><h3>How a payment is decided</h3><div class="muted" style="font-size:13px">Online features from the streaming feature store → gradient-boosted model (calibrated) + isolation-forest anomaly score → policy from the alert budget: <span class="pill HOLD">HOLD</span> analyst review, <span class="pill STEP_UP">STEP_UP</span> customer confirms, <span class="pill ALLOW">ALLOW</span>. <span class="truth">fraud</span> marks the simulator's ground truth, shown for the demo only.</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="p-alerts">
+  <div class="grid case">
+    <div class="card" style="padding:0"><div style="padding:14px 16px 6px"><h3>Held payments (test period)</h3></div><div class="list" id="alist"></div></div>
+    <div id="caseview" class="card"><div class="muted">Select an alert. The investigator agent gathers evidence with its tools, decides the typology, writes a grounded narrative and drafts the STR.</div></div>
+  </div>
+</section>
+
+<section class="page" id="p-rings"><div class="grid half" id="rings"></div></section>
+<section class="page" id="p-model"><div id="model"></div></section>
+
+<section class="page" id="p-try">
+  <div class="grid two">
+    <div class="card"><h3>Score a payment against the live state</h3>
+      <div class="form">
+        <label class="f">Payer account<input id="f-payer"></label>
+        <label class="f">Payee account<input id="f-payee"></label>
+        <label class="f">Amount (Rs)<input id="f-amt" type="number" value="49000"></label>
+        <label class="f">Type<select id="f-type"><option>P2P</option><option>P2M</option><option>COLLECT</option></select></label>
+        <label class="f">Payment note<input id="f-rem" placeholder="e.g. KYC update pending"></label>
+        <label class="f">Device<select id="f-dev"><option value="">customer's usual phone</option><option value="DV-NEW-01">a new, never-seen phone</option></select></label>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:10px;align-items:center"><button class="btn" id="f-go">Score</button><span class="muted" id="f-ex"></span></div>
+    </div>
+    <div class="card" id="f-out"><div class="muted">The decision, calibrated fraud probability and the top reasons appear here.</div></div>
+  </div>
+</section>
+</main>
+
+<script>
+const $=s=>document.querySelector(s), esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const api=async(p,o)=>{const r=await fetch(p,o);if(!r.ok)throw new Error((await r.json().catch(()=>({}))).detail||r.status);return r.json();};
+const inr=v=>{const s=Math.round(v).toString();if(s.length<=3)return "₹"+s;const h=s.slice(0,-3).replace(/\B(?=(\d{2})+(?!\d))/g,",");return "₹"+h+","+s.slice(-3);};
+const short=v=>esc(String(v).split("@")[0].slice(0,18));
+const riskbar=p=>`<span class="risk"><i style="--w:${Math.max(2,p*100)}%;--c:${p>.5?'var(--hold)':p>.1?'var(--step)':'var(--allow)'}"></i><span class="mono">${(p*100).toFixed(p<.1?1:0)}%</span></span>`;
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x===b));
+  document.querySelectorAll(".page").forEach(p=>p.classList.toggle("on",p.id==="p-"+b.dataset.p));
+  ({alerts:loadAlerts,rings:loadRings,model:loadModel,try:loadTry})[b.dataset.p]?.();
+});
+
+/* ---------------- live ---------------- */
+let S={n:0,hold:0,step:0,allow:0,fraud:0,caught:0,lat:[],t0:Date.now()},paused=false,es=null;
+function startStream(){
+  es=new EventSource("/api/stream?rate="+(new URLSearchParams(location.search).get("rate")||40));
+  es.onmessage=m=>{if(!paused) onEvent(JSON.parse(m.data));};
+  es.onerror=()=>{es.close();setTimeout(startStream,2000);};
+}
+function onEvent(e){
+  S.n++;S[e.decision==="HOLD"?"hold":e.decision==="STEP_UP"?"step":"allow"]++;
+  if(e.is_fraud){S.fraud++;if(e.decision!=="ALLOW")S.caught++;}
+  S.lat.push(e.latency_ms);if(S.lat.length>80)S.lat.shift();
+  const tb=$("#feed");
+  const interesting=e.decision!=="ALLOW"||e.is_fraud||S.n%3===0;
+  if(interesting){
+    const tr=document.createElement("tr");tr.className="new";
+    tr.innerHTML=`<td class="mono">${e.ts.slice(5,16).replace("T"," ")}</td><td>${short(e.payer)} → ${short(e.payee)}${e.is_fraud?'<span class="truth">fraud</span>':''}</td>
+      <td class="num">${inr(e.amount)}</td><td class="mono">${e.type}</td><td>${riskbar(e.risk)}</td><td><span class="pill ${e.decision}">${e.decision.replace("_","-")}</span></td><td class="num mono">${e.latency_ms.toFixed(1)}</td>`;
+    tb.prepend(tr);while(tb.children.length>16)tb.lastChild.remove();
+  }
+  if(S.n%5===0) drawLive();
+}
+function drawLive(){
+  const sec=(Date.now()-S.t0)/1000, avg=S.lat.reduce((a,b)=>a+b,0)/Math.max(1,S.lat.length);
+  const k=[["Payments scored",S.n.toLocaleString("en-IN"),`${(S.n/sec).toFixed(0)} / sec`],["Held for review",S.hold,`${(S.hold/S.n*100||0).toFixed(2)}%`],
+    ["Step-up checks",S.step,`${(S.step/S.n*100||0).toFixed(2)}%`],["Fraud stopped",`${S.caught}/${S.fraud}`,"held or challenged"],
+    ["Avg latency",`${avg.toFixed(1)} ms`,"features + model + policy"],["Allowed",S.allow.toLocaleString("en-IN"),"no friction"]];
+  $("#livekpi").innerHTML=k.map(([l,v,s])=>`<div class="card kpi"><span>${l}</span><b>${v}</b><small>${s}</small></div>`).join("");
+  const tot=Math.max(1,S.n);
+  $("#mix").innerHTML=[["ALLOW",S.allow,"var(--allow)"],["STEP_UP",S.step,"var(--step)"],["HOLD",S.hold,"var(--hold)"]].map(([n,v,c])=>
+    `<div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span class="pill ${n}" style="width:70px;text-align:center">${n.replace("_","-")}</span><div style="flex:1;background:var(--line);height:8px;border-radius:4px;overflow:hidden"><div style="width:${Math.max(.5,v/tot*100)}%;height:100%;background:${c}"></div></div><span class="mono" style="width:56px;text-align:right">${v}</span></div>`).join("");
+  const L=S.lat,mx=Math.max(20,...L);
+  $("#spark").innerHTML=`<polyline fill="none" stroke="var(--accent)" stroke-width="1.6" points="${L.map((v,i)=>`${i*300/79},${78-v/mx*70}`).join(" ")}"/>`;
+  const sorted=[...L].sort((a,b)=>a-b);$("#latnote").textContent=`p50 ${sorted[Math.floor(L.length*.5)]?.toFixed(1)} ms · p95 ${sorted[Math.floor(L.length*.95)]?.toFixed(1)} ms`;
+}
+$("#pause").onclick=()=>{paused=!paused;$("#pause").textContent=paused?"Resume":"Pause";};
+
+/* ---------------- alerts & cases ---------------- */
+let alerts=[];
+async function loadAlerts(){
+  alerts=await api("/api/alerts?limit=200");
+  $("#alist").innerHTML=alerts.map(a=>`<div class="item" data-id="${a.txn_id}"><div class="top"><b>${inr(a.amount)}</b><span class="pill HOLD">${a.status==="open"?"OPEN":esc(a.status.replace("_"," ").toUpperCase())}</span></div>
+     <small>${short(a.payer)} → ${short(a.payee)} · ${a.type} · ${a.ts.replace("T"," ")}</small><div>${riskbar(a.risk)}${a.held_by==="model"?"":' <span class="pill STEP_UP" title="Model asked for step-up; the payee is on the mule watchlist">GRAPH</span>'}</div></div>`).join("");
+  document.querySelectorAll("#alist .item").forEach(el=>el.onclick=()=>openCase(el.dataset.id,el));
+  if(alerts.length && !document.querySelector("#alist .item.on")) openCase(alerts[0].txn_id,document.querySelector("#alist .item"));
+}
+async function openCase(id,el){
+  document.querySelectorAll("#alist .item").forEach(x=>x.classList.toggle("on",x===el));
+  $("#caseview").innerHTML=`<div class="muted">Investigating ${esc(id)}…</div>`;
+  const c=await api(`/api/cases/${id}`);
+  const ev=Object.fromEntries(c.evidence.map(e=>[e.id,e]));
+  const pay=ev.E1?.data||{}, mr=c.evidence.find(e=>e.tool==="model_reasons")?.data, tr=c.evidence.find(e=>e.tool==="money_trail")?.data;
+  $("#caseview").innerHTML=`
+   <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><div class="muted mono">${esc(c.txn_id)} · ${esc(pay.time||"")}</div>
+     <div class="typ">${esc(c.typology_name)}</div><div class="muted">${esc(c.typology_basis)} · confidence ${(c.confidence*100).toFixed(0)}%</div></div>
+     <div style="text-align:right"><div style="font-size:22px;font-weight:700">${inr(pay.amount||0)}</div><div>${riskbar(mr?.risk||0)}</div>
+     <div class="muted" style="font-size:12px">agent: ${c.trace.filter(t=>t.node==="act").length} tool calls · ${c.latency_ms} ms · narrative: ${c.narrative_source}</div></div></div>
+   <div class="grid half" style="margin-top:12px">
+     <div><h3>Why it was held</h3><ul class="reasons">${(alerts.find(a=>a.txn_id===id)?.held_by==="graph watchlist")?'<li><b>receiving account is on the mule watchlist</b> from the daily graph job - the model alone asked only for a step-up</li>':''}${(mr?.reasons||[]).map(r=>`<li>${esc(r.reason)}</li>`).join("")}</ul>
+       <h3 style="margin-top:14px">Case narrative</h3><div class="narr">${c.narrative.map(s=>`<p>${esc(s.text)}${s.evidence.map(e=>`<span class="ref" title="${esc(ev[e]?.title)}">${e}</span>`).join("")}</p>`).join("")}</div></div>
+     <div><h3>Money trail</h3>${trailSvg(tr)}<h3 style="margin-top:10px">Evidence gathered by the agent</h3>${c.evidence.map(e=>`<details class="ev"><summary><span class="ref">${e.id}</span> ${esc(e.title)} <span class="muted mono" style="font-size:11px">${e.tool}</span></summary><p>${esc(e.summary)}</p></details>`).join("")}</div>
+   </div>
+   <div class="card" style="margin-top:12px;background:var(--panel2)"><h3>${esc(c.report.title)}</h3><dl class="str">
+     <dt>Typology</dt><dd>${esc(c.report.typology)}</dd><dt>Subjects</dt><dd>${c.report.subjects.map(s=>`<span class="mono">${esc(s.vpa)}</span> <span class="muted">(${esc(s.role)})</span>`).join("<br>")}</dd>
+     <dt>Transactions in report</dt><dd>${c.report.transactions.length} · total ${inr(c.report.total_amount)}</dd>
+     <dt>Recommended actions</dt><dd><ul>${c.report.recommended_actions.map(a=>`<li>${esc(a)}</li>`).join("")}</ul></dd></dl>
+     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn red" data-d="confirmed_fraud">Confirm fraud</button><button class="btn amber" data-d="escalated">Escalate</button><button class="btn ghost" data-d="false_positive">False positive</button>
+     <span class="muted" id="dstat">${c.analyst?`Decision recorded: ${esc(c.analyst.decision)}`:"Analyst decision pending"}</span></div></div>`;
+  document.querySelectorAll("[data-d]").forEach(b=>b.onclick=async()=>{const r=await api(`/api/cases/${id}/decision`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({decision:b.dataset.d})});$("#dstat").textContent="Decision recorded: "+r.decision;});
+}
+function trailSvg(tr){
+  if(!tr||!tr.edges?.length) return `<p class="muted">No onward movement.</p>`;
+  const W=560,H=Math.max(140,Math.max(...Object.values(tr.nodes.reduce((a,n)=>(a[n.hop]=(a[n.hop]||0)+1,a),{})))*58+30);
+  const byHop={};tr.nodes.forEach(n=>(byHop[n.hop]=byHop[n.hop]||[]).push(n));
+  const maxHop=Math.max(...tr.nodes.map(n=>n.hop)),pos={};
+  Object.entries(byHop).forEach(([h,ns])=>ns.forEach((n,i)=>pos[n.account]={x:70+h*(W-140)/Math.max(1,maxHop),y:(i+1)*H/(ns.length+1)}));
+  const edges=tr.edges.map(e=>{const a=pos[e.payer],b=pos[e.payee];if(!a||!b)return"";const mx=(a.x+b.x)/2,my=(a.y+b.y)/2-6;
+    return `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${e.hop===0?'var(--step)':'var(--hold)'}" stroke-width="1.6" marker-end="url(#ar)"/><text x="${mx}" y="${my}" text-anchor="middle" style="font-size:10px;fill:var(--muted)">${inr(e.amount)}</text>`;}).join("");
+  const nodes=tr.nodes.map(n=>{const p=pos[n.account];return `<circle cx="${p.x}" cy="${p.y}" r="8" fill="${n.hop===0?'var(--accent2)':'var(--hold)'}"/><text x="${p.x}" y="${p.y+20}" text-anchor="middle">${short(n.vpa)}</text>`;}).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%"><defs><marker id="ar" viewBox="0 0 10 10" refX="16" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--hold)"/></marker></defs>${edges}${nodes}</svg>
+   <div class="legend"><span><i style="background:var(--accent2)"></i>payer</span><span><i style="background:var(--hold)"></i>receiving accounts</span><span>${tr.hops} hop${tr.hops===1?'':'s'} · ${Math.round(tr.share_moved_on*100)}% moved on</span></div>`;
+}
+
+/* ---------------- rings ---------------- */
+async function loadRings(){
+  const rs=await api("/api/rings");
+  $("#rings").innerHTML=rs.length?rs.map(r=>`<div class="card"><div style="display:flex;justify-content:space-between"><div><b style="font-size:16px">${r.ring}</b> <span class="muted">${r.size} accounts · ${r.victims} victims</span></div><b>${inr(r.stolen_inflow)}</b></div>
+     ${ringSvg(r)}<table><tr><th>Account</th><th class="num">Mule score</th><th class="num">Senders</th><th class="num">Pass-through</th><th class="num">Age (d)</th></tr>
+     ${r.nodes.map(n=>`<tr><td class="mono">${esc(n.vpa)}</td><td class="num">${n.score.toFixed(2)}</td><td class="num">${n.distinct_senders}</td><td class="num">${Math.round(n.pass_through*100)}%</td><td class="num">${n.account_age_days??"-"}</td></tr>`).join("")}</table></div>`).join(""):`<div class="card muted">No rings detected.</div>`;
+}
+function ringSvg(r){
+  const W=420,H=230,cx=W/2,cy=H/2,R=85,pos={};
+  r.members.forEach((m,i)=>{const a=i/r.members.length*2*Math.PI-Math.PI/2;pos[m]={x:cx+R*1.5*Math.cos(a),y:cy+R*Math.sin(a)};});
+  const mx=Math.max(...r.edges.map(e=>e.amount),1);
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%">${r.edges.map(e=>`<line x1="${pos[e.from].x}" y1="${pos[e.from].y}" x2="${pos[e.to].x}" y2="${pos[e.to].y}" stroke="var(--hold)" stroke-opacity=".7" stroke-width="${1+3*e.amount/mx}"/>`).join("")}
+    ${r.nodes.map(n=>`<circle cx="${pos[n.account].x}" cy="${pos[n.account].y}" r="${6+n.score*8}" fill="var(--hold)" fill-opacity="${.35+n.score*.6}"/><text x="${pos[n.account].x}" y="${pos[n.account].y-14}" text-anchor="middle">${short(n.vpa)}</text>`).join("")}</svg>`;
+}
+
+/* ---------------- model ---------------- */
+async function loadModel(){
+  const m=await api("/api/metrics"), mm=m.model;
+  const kp=[["Average precision",mm.average_precision.toFixed(3),"test period, ranking quality"],["HOLD precision",pct(mm.hold.precision),`${mm.hold.alerts_per_day} holds / day`],
+    ["HOLD recall",pct(mm.hold.recall),`${pct(mm.hold.value_recall)} of fraud value`],["With step-up",pct(mm.hold_or_step_up.recall),`recall · ${pct(mm.hold_or_step_up.value_recall)} of value`],
+    ["p95 latency",`${m.latency_ms.p95} ms`,`p50 ${m.latency_ms.p50} ms`]];
+  const mo=mm.hold_model_only||mm.hold, rb=m.rules_baseline;
+  const cmp=[["Precision",rb.precision,mo.precision,mm.hold.precision],["Recall",rb.recall,mo.recall,mm.hold.recall],["Value recall",rb.value_recall,mo.value_recall,mm.hold.value_recall]];
+  $("#model").innerHTML=`<div class="grid k5">${kp.map(([l,v,s])=>`<div class="card kpi"><span>${l}</span><b>${v}</b><small>${s}</small></div>`).join("")}</div>
+   <div class="grid half" style="margin-top:14px">
+    <div class="card"><h3>Rules vs model vs model + mule graph (HOLD)</h3>${cmp.map(([l,a,b,c])=>`<div style="margin:10px 0"><div class="muted" style="font-size:12px">${l}</div>
+      ${bar("Rules",a,"var(--muted)")}${bar("Model",b,"#7aa2ff")}${bar("Model + graph",c,"var(--accent)")}</div>`).join("")}<p class="muted" style="font-size:12px">Rules: ₹50k+, 5+ payments/hour, new device + ₹10k, night + ₹20k, scam words. The graph adds a daily mule watchlist that raises step-ups to HOLD (${mm.graph_escalations} escalations). False positives per 10k legit payments: rules ${rb.false_positives_per_10k}, model ${mo.false_positives_per_10k}, model + graph ${mm.hold.false_positives_per_10k}.</p></div>
+    <div class="card"><h3>Precision-recall curve (test period)</h3>${prSvg(mm.pr_curve)}</div></div>
+   <div class="grid half" style="margin-top:14px">
+    <div class="card"><h3>Detection by fraud type (test period)</h3><table><tr><th>Typology</th><th class="num">Payments</th><th class="num">Rules</th><th class="num">Model held</th><th class="num">+ graph held</th><th class="num">Held or step-up</th></tr>
+     ${Object.entries(m.by_scenario).map(([k,v])=>`<tr><td>${esc(k.replace("_"," "))}${v.novel?' <span class="pill STEP_UP">NEW</span>':''}</td><td class="num">${v.payments}</td><td class="num">${pct(v.rules_baseline)}</td><td class="num">${pct(v.hold_model_only??v.hold)}</td><td class="num">${pct(v.hold)}</td><td class="num">${pct(v.hold_or_step_up)}</td></tr>`).join("")}</table>
+     <p class="muted" style="font-size:12px">"NEW" = an investment scam that appears only in the test period; the model never saw it in training.</p></div>
+    <div class="card"><h3>Graph and agent</h3><table>
+     <tr><td>Rings found / planted</td><td class="num">${m.graph.rings_found} / ${m.graph.true_rings}</td></tr>
+     <tr><td>Ring member precision</td><td class="num">${pct(m.graph.precision)}</td></tr>
+     <tr><td>Active fraud accounts uncovered</td><td class="num">${pct(m.graph.recall_active_fraud_accounts)}</td></tr>
+     <tr><td>Ring purity</td><td class="num">${pct(m.graph.ring_purity)}</td></tr>
+     <tr><td>Agent typology accuracy (${m.agent.cases} cases)</td><td class="num">${pct(m.agent.typology_accuracy)}</td></tr>
+     <tr><td>Narrative sentences grounded in evidence</td><td class="num">${pct(m.agent.grounded_sentence_rate)}</td></tr></table></div></div>
+   <div class="grid half" style="margin-top:14px">
+    <div class="card"><h3>Drift (PSI, training vs test) · <span class="${m.drift.status==="stable"?"ok":m.drift.status==="watch"?"warn":"bad"}">${m.drift.status}</span></h3><table><tr><th>Feature</th><th class="num">PSI</th></tr>
+     <tr><td><b>model score</b></td><td class="num">${m.drift.score_psi}</td></tr>${m.drift.features.slice(0,7).map(f=>`<tr><td class="mono">${f.feature}</td><td class="num ${f.psi>.25?"bad":f.psi>.1?"warn":""}">${f.psi}</td></tr>`).join("")}</table><p class="muted" style="font-size:12px">${esc(m.drift.rule)}</p></div>
+    <div class="card"><h3>Fairness of alerts (legitimate customers stopped)</h3>${Object.entries(m.fairness).map(([g,v])=>`<div style="margin-bottom:10px"><b>${g.replace("_"," ")}</b> <span class="${v.status==="ok"?"ok":"warn"}">${esc(v.status)}</span> <span class="muted">· max FPR ratio ${v.max_fpr_ratio??"-"}</span>
+     <table><tr><th>Group</th><th class="num">Payments</th><th class="num">False-positive rate</th><th class="num">Fraud recall</th></tr>${v.groups.map(r=>`<tr><td>${esc(r.group)}</td><td class="num">${r.payments.toLocaleString("en-IN")}</td><td class="num">${(r.false_positive_rate*100).toFixed(2)}%</td><td class="num">${r.fraud_recall==null?"-":pct(r.fraud_recall)}</td></tr>`).join("")}</table></div>`).join("")}</div></div>`;
+}
+const pct=v=>`${(v*100).toFixed(1)}%`;
+const bar=(l,v,c)=>`<div style="display:flex;align-items:center;gap:8px;margin:3px 0"><span style="width:96px;font-size:12px" class="muted">${l}</span><div style="flex:1;background:var(--line);height:10px;border-radius:5px;overflow:hidden"><div style="width:${v*100}%;height:100%;background:${c}"></div></div><span class="mono" style="width:50px;text-align:right">${pct(v)}</span></div>`;
+function prSvg(pts){const W=420,H=220,P=34;const x=r=>P+r*(W-P-10),y=p=>H-P-p*(H-P-10);
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%"><line x1="${P}" y1="${H-P}" x2="${W-10}" y2="${H-P}" stroke="var(--line)"/><line x1="${P}" y1="10" x2="${P}" y2="${H-P}" stroke="var(--line)"/>
+   ${[0,.5,1].map(v=>`<text x="${P-6}" y="${y(v)+4}" text-anchor="end" style="fill:var(--muted)">${v}</text><text x="${x(v)}" y="${H-P+16}" text-anchor="middle" style="fill:var(--muted)">${v}</text>`).join("")}
+   <polyline fill="none" stroke="var(--accent)" stroke-width="2" points="${pts.map(p=>`${x(p.recall)},${y(p.precision)}`).join(" ")}"/>
+   <text x="${W/2}" y="${H-4}" text-anchor="middle" style="fill:var(--muted)">recall</text><text x="10" y="${H/2}" transform="rotate(-90 10 ${H/2})" text-anchor="middle" style="fill:var(--muted)">precision</text></svg>`;}
+
+/* ---------------- try a payment ---------------- */
+async function loadTry(){
+  if($("#f-payer").value) return;
+  const ex=await api("/api/accounts/examples");
+  $("#f-payer").value=ex[0].account;$("#f-payee").value=ex[3].account;
+  $("#f-ex").innerHTML="Examples: "+ex.map(e=>`<span class="mono" title="${esc(e.vpa)}">${e.account}</span> (${esc(e.label)})`).join(", ");
+}
+$("#f-go").onclick=async()=>{
+  try{const r=await api("/api/score",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({payer:$("#f-payer").value.trim(),payee:$("#f-payee").value.trim(),amount:+$("#f-amt").value,type:$("#f-type").value,remarks:$("#f-rem").value,device:$("#f-dev").value||null})});
+    $("#f-out").innerHTML=`<h3>Decision</h3><div style="display:flex;align-items:center;gap:14px"><span class="pill ${r.decision}" style="font-size:14px;padding:8px 12px">${r.decision.replace("_","-")}</span>${riskbar(r.risk)}<span class="muted">${r.latency_ms} ms</span></div>
+     <h3 style="margin-top:16px">Top reasons</h3>${r.reasons.length?`<ul class="reasons">${r.reasons.map(x=>`<li>${esc(x.reason)} ${x.impact==null?"":`<span class="muted mono">(+${x.impact})</span>`}</li>`).join("")}</ul>`:'<p class="muted">Nothing unusual.</p>'}`;}
+  catch(e){$("#f-out").innerHTML=`<p class="bad">${esc(e.message)}</p>`;}
+};
+
+api("/health").then(h=>$("#prov").textContent=h.llm_provider==="mock"?"offline mode (no LLM)":"LLM: "+h.llm_provider).catch(()=>{});
+drawLive();startStream();
+</script>
+</body>
+</html>

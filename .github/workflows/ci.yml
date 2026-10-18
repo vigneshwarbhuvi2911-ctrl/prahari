@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      LLM_PROVIDER: mock
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - name: Tests
+        run: python -m pytest
+
+  evaluation:
+    runs-on: ubuntu-latest
+    env:
+      LLM_PROVIDER: mock
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Full-scale build and quality gates
+        run: python -m eval.run --rebuild --out eval/report.md
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-report
+          path: eval/report.md
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image (small scale for speed)
+        run: docker build --build-arg PRAHARI_SCALE=small -t prahari .
+      - name: Start container and score a risky payment
+        run: |
+          docker run -d --name prahari -p 8000:8000 prahari
+          for i in $(seq 1 30); do curl -sf localhost:8000/health && break; sleep 2; done
+          python3 - <<'PY'
+          import json, urllib.request
+          ex = json.load(urllib.request.urlopen("http://localhost:8000/api/accounts/examples"))
+          body = json.dumps({"payer": ex[0]["account"], "payee": ex[3]["account"], "amount": 95000,
+                             "type": "P2P", "device": "DV-NEW-99"}).encode()
+          req = urllib.request.Request("http://localhost:8000/api/score", body, {"Content-Type": "application/json"})
+          r = json.load(urllib.request.urlopen(req))
+          print(r["decision"], r["risk"], [x["reason"] for x in r["reasons"]])
+          assert r["decision"] != "ALLOW"
+          PY

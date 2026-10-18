@@ -1,0 +1,2 @@
+# Only needed for LLM_PROVIDER=bedrock (Amazon Nova via the Converse API)
+boto3==1.35.90

@@ -1,0 +1,13 @@
+services:
+  prahari:
+    build:
+      context: .
+      args:
+        WITH_BEDROCK: ${WITH_BEDROCK:-false}
+        PRAHARI_SCALE: ${PRAHARI_SCALE:-full}
+    ports:
+      - "8000:8000"
+    env_file:
+      - path: .env
+        required: false
+    restart: unless-stopped
